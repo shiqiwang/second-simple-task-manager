@@ -1,0 +1,168 @@
+﻿* {
+    margin: 0;
+}
+
+body {
+    position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+    min-height: 600px;
+    min-width: 980px;
+    font: 16px 'microsoft yahei';
+}
+
+#taskManagerBox {
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0; bottom: 0; left: 0; right: 0;
+}
+
+#header {
+    height: 80px;
+    line-height: 80px;
+    background-color: rgb(221, 221, 221);
+    padding-left: 50px;
+}
+
+#main {
+    position: absolute;
+    top: 81px; bottom: 0; left: 0; right: 0;
+}
+
+#header h2 {
+    color: black;
+}
+
+#classifyList {
+    width: 255px;
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+}
+
+#taskList {
+    width: 255px;
+    position: absolute;
+    top: 0; bottom: 0; left: 256px;
+    background-color: white;
+}
+
+#classifyListHead, #taskListHead {
+    height: 50px;
+    width: 255px;
+    line-height: 50px;
+    position: absolute;
+    top: 0;
+    background-color: rgb(238, 238, 238);
+    text-align: center;
+}
+#taskListHead span, .forUser {
+    display: inline-block;
+    height: 30px;
+    width: 70px;
+    background-color: white;
+    border: 1px solid white;
+    text-align: center;
+    line-height: 30px;
+}
+
+#taskListHead span:hover,
+.forUser:hover
+ {
+    border: 1px solid black;
+    cursor: pointer;
+}
+
+.mainBody {
+    width: 255px;
+    position: absolute;
+    top: 51px; bottom: 81px;
+}
+
+#classifyList .mainBody {
+    background-color: rgb(242, 242, 242);
+}
+
+#taskList .mainBody {
+    background-color: rgb(250, 250, 238);
+}
+
+.feet {
+    height: 80px;
+    line-height: 80px;
+    width: 255px;
+    position: absolute;
+    bottom: 0; 
+    background-color: rgb(238, 238, 238);
+    text-align: center;
+}
+
+.feet:hover {
+    background-color: rgb(250, 250, 238);
+    cursor: pointer;
+}
+
+#todoList {
+    position: absolute;
+    top: 0; bottom: 0; left: 511px; right: 0;
+}
+
+#todoListHead {
+    height: 80px;
+    line-height: 80px;
+    position: absolute;
+    top: 0; right: 0; left: 1px;
+    background-color: rgb(242, 242, 242);
+}
+
+#displayTaskName {
+    margin-left: 50px;
+}
+
+#save {
+    position: absolute;
+    right: 20px; top: 25px;
+}
+
+#edit {
+    position: absolute;
+    right: 100px; top: 25px;
+}
+
+#editBox {
+    position: absolute;
+    top: 81px; left: 1px; right: 0; bottom: 0;
+}
+
+.mainBodyItem0,
+.mainBodyItem1
+{
+    height: 30px;
+    line-height: 30px;
+    padding-left: 15px;
+}
+
+.mainBodyItem0:hover,
+.mainBodyItem1:hover
+ {
+    background-color: white;
+    cursor: pointer;
+}
+
+.folderIcon {
+    display: inline-block;
+    width: 12px; height: 16px;
+    background: url(../image/folder-icon.png);
+}
+
+.displayName {
+    display: inline-block;
+    margin-left: 5px;
+}
+
+.removeIcon {
+    display: inline-block;
+    width: 14px; height: 14px;
+    background: url(../image/remove-icon.png);
+    float: right;
+    margin: 8px 8px 0 0;
+}

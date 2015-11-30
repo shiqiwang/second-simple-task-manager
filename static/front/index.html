@@ -1,0 +1,54 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>simple-task-manager</title>
+	<meta charset="utf-8" />
+    <link href="index.css" rel="stylesheet" />
+</head>
+<body>
+    <div id="taskManagerBox">
+        <!--头部, 作品名-->
+        <div id="header"><h2 title="simple task management system">Task Manager</h2></div>
+        <!--主体部分-->
+        <div id="main">
+            <!--第一个侧栏,所有的任务文件夹列表-->
+            <div id="classifyList">
+                <div id="classifyListHead">
+                    <h4>分类列表</h4>
+                </div>
+                <div class="mainBody"></div>
+                <div class="feet">
+                    <span class="addIcon"></span>
+                    <span class="addClassify" id="addFolder">新增分类</span>
+                </div>
+            </div>
+            <!--第二个侧栏, 所有任务文件列表-->
+            <div id="taskList">
+                <div id="taskListHead">
+                    <span>所有</span>
+                    <span>未完成</span>
+                    <span>已完成</span>
+                </div>
+                <div class="mainBody">
+                </div>
+                <div class="feet">
+                    <span class="addIcon"></span>
+                    <span class="addClassify" id="addTask">新增任务</span>
+                </div>
+            </div>
+            <!--第三栏-->
+            <div id="todoList">
+                <div id="todoListHead">
+                    <span id="displayTaskName">学习JavaScript</span>
+                    <span id="save" class="forUser">保存</span>
+                    <span id="edit" class="forUser">编辑</span>
+                </div>
+                <div id="editBox">
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="frontIndex.js"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+node_modules/
+taskManagerData/
+
+Web.config
+Web.Debug.config
