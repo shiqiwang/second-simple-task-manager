@@ -71,10 +71,6 @@ function init() {
     //保存editBox数据
     var save = document.getElementById('save');
     save.addEventListener('click', saveData);
-
-    //删除
-    var removeIcon = document.getElementById('removeIcon');
-    removeIcon.addEventListener('click')
 }
 //flag用于表示要添加的是文件夹还是文件 为了和addClassify数组中的元素对应 分别取0和1
 //name是用户输入的名字 需要给每个小的item都加上一个name属性 以便再次利用
@@ -98,13 +94,37 @@ function create(flag, name) {
     mainBodyItem.appendChild(displayName);
     var removeIcon = document.createElement('span');
     removeIcon.className = 'removeIcon';
+    removeIcon.addEventListener('click', function () {
+        remove(this);
+    });
     mainBodyItem.appendChild(removeIcon);
 }
+//删除操作
+function remove(ele) {
+    var messageFromUser = confirm('确定要做删除操作吗?数据将被清空!');
+    if (messageFromUser != null && messageFromUser != '') {
+        var parentEle = ele.parentNode;
+        var name = parentEle.getAttribute('name');
+        if (parentEle.id == 'openMark0') {
+            xhrFunc('/api/remove-folder?folderName=' + encodeURIComponent(name));
+            cleanUpList(0);
+            cleanUpList(1);
+        } else if (parentEle.id == 'openMark1') {
+            var openFolder = document.getElementById('openMark0');
+            var folderName = openFolder.getAttribute('name');
+            xhrFunc('/api/remove-task?folderName=' + encodeURIComponent(folderName) + '&taskName=' + encodeURIComponent(name));
+            var mainBody = document.getElementsByClassName('mainBody')[1];
+            mainBody.removeChild(parentEle);
+        }
+    }
+}
 
-//删除. 去掉多次点击同一文件夹时出现重复文件的bug
-function remove(flag) {
+//在显示当前打开的文件夹中的文件前，清除掉上一次打开文件夹中显示出的文件列表
+function cleanUpList(flag) {
     if (flag == 0) {
         var mainBody = document.getElementsByClassName('mainBody')[0];
+        var openFolder = document.getElementById('openMark0');
+        mainBody.removeChild(openFolder);
         } else if(flag == 1) {
             var mainBody = document.getElementsByClassName('mainBody')[1];
             var mainBodyItems = document.getElementsByClassName('mainBodyItem1');
@@ -124,7 +144,7 @@ function openedMark(ele, flag) {
     ele.id = 'openMark' + flag;
     if (flag == 0) {
         var folderName = ele.getAttribute('name');
-        remove(1);
+        cleanUpList(1);
         xhrFunc('/api/load-taskLists-when-folderOpened?folderName=' + encodeURIComponent(folderName), 1);
     } else if (flag == 1) {
         var folder = document.getElementById('openMark0');
@@ -139,7 +159,11 @@ function saveData() {
     var data = editBox.innerHTML;
     var folderName = returnOpenFile()[0];
     var taskName = returnOpenFile()[1];
-    xhrFunc('/api/writeData-when-saveButtonClicked?folderName=' + encodeURIComponent(folderName) + '&taskName=' + encodeURIComponent(taskName) + '&data=' + encodeURIComponent(data));
+    if (folderName == null || taskName == null) {
+        alert('数据必须保存在文件中!');
+    } else {
+        xhrFunc('/api/writeData-when-saveButtonClicked?folderName=' + encodeURIComponent(folderName) + '&taskName=' + encodeURIComponent(taskName) + '&data=' + encodeURIComponent(data));
+    }
 }
 function editData() {
     var editBox = document.getElementById('editBox');
@@ -157,8 +181,10 @@ function markType() { }
 //返回打开的文件和文件夹
 function returnOpenFile() {
     var openFolder = document.getElementById('openMark0');
-    var folderName = openFolder.getAttribute('name');
     var openTask = document.getElementById('openMark1');
-    var taskName = openTask.getAttribute('name');
+    if (openFolder != null || openTask !== null) {
+        var folderName = openFolder.getAttribute('name');
+        var taskName = openTask.getAttribute('name');
+    }
     return [folderName, taskName];
 }
