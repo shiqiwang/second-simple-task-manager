@@ -6,6 +6,9 @@ function isNotEmpty(obj) {
     }
     return false;
 }
+
+var FLAG_FOLDER = 0;
+var FLAG_TASK = 1;
 //flag用于标记是是哪种调用 不过当flag实参不传递时 flag的值是undefined
 function xhrFunc(url, flag) {
     var xhr = new XMLHttpRequest();
@@ -14,23 +17,24 @@ function xhrFunc(url, flag) {
         if (xhr.readyState === 4 && xhr.status === 200) {
             //如果后台返回的是空对象 json解析后也是空对象 因此需要判断返回的json解析后是否为空,不能简单判断它是否为null
             var response = JSON.parse(xhr.responseText);
+
             //先猜flag为undefined
-            if (isNotEmpty(response) && flag != 'undefined') {
+            if ((typeof response === 'string' || isNotEmpty(response)) && flag != undefined) {
                 switch (flag) {
                     //根据flag值不同 调用不同的函数 包括窗口刷新时的创建文件夹 
-                    case 0:
+                    case FLAG_FOLDER:
                         for (var i = 0; i < response.length; i++) {
-                            create(0, response[i]);
+                            create(FLAG_FOLDER, response[i]);
                         }
                         break;
-                    case 1:
+                    case FLAG_TASK:
                         for (var i = 0; i < response.length; i++) {
-                            create(1, response[i]);
+                            create(FLAG_TASK, response[i]);
                         }
                         break;
                     case 2:
                         var editBox = document.getElementById('editBox');
-                        editBox.innerHTML = response;
+                        editBox.innerHTML = response || '';
                 };
             }
         }
@@ -40,25 +44,25 @@ function xhrFunc(url, flag) {
 window.addEventListener('load', init);
 function init() {
     //load事件发生时从后台读取文件夹列表并创建
-    xhrFunc('/api/load-folderLists-when-refresh', 0);
+    xhrFunc('/api/load-folderLists-when-refresh', FLAG_FOLDER);
     //创建文件夹 文件
     var addFolder = document.getElementsByClassName('feet')[0];
     addFolder.addEventListener('click', function () {
         var folderName = prompt('输入文件夹名:', '');
         if (folderName != null && folderName != '') {
             xhrFunc('/api/create-folder?folderName=' + encodeURIComponent(folderName));
-            create(0, folderName);
+            create(FLAG_FOLDER, folderName);
         }
     });
     var addTask = document.getElementsByClassName('feet')[1];
     addTask.addEventListener('click', function () {
         var openMark0 = document.getElementById('openMark0');
-        var folderName = openMark0.getAttribute('name');
+        var folderName = openMark0.getAttribute('folderName');
         if (openMark0 != 'undefined' && openMark0 != null) {
             var taskName = prompt('输入文件名:', '');
             if (taskName != null && taskName != '') {
                 xhrFunc('/api/create-task?folderName=' + encodeURIComponent(folderName) +'&taskName=' + encodeURIComponent(taskName));
-                create(1, taskName);
+                create(FLAG_TASK, taskName);
             }
         } else {
             alert('文件必须保存在文件夹中!');
@@ -78,15 +82,18 @@ function create(flag, name) {
     var mainBody = document.getElementsByClassName('mainBody');
     var mainBodyItem = document.createElement('div');
     mainBodyItem.className = 'mainBodyItem' + flag;
-    mainBodyItem.setAttribute('name', name);
     mainBodyItem.addEventListener('click', function () {
         openedMark(this, flag);
     });
     mainBody[flag].appendChild(mainBodyItem);
-    if (flag == 0) {
+    if (flag == FLAG_FOLDER) {
+        mainBodyItem.setAttribute('folderName', name);
         var folderIcon = document.createElement('span');
         folderIcon.className = 'folderIcon';
         mainBodyItem.appendChild(folderIcon);
+    }
+    if (flag == FLAG_TASK) {
+        mainBodyItem.setAttribute('taskName', name);
     }
     var displayName = document.createElement('span');
     displayName.className = 'displayName';
@@ -94,8 +101,10 @@ function create(flag, name) {
     mainBodyItem.appendChild(displayName);
     var removeIcon = document.createElement('span');
     removeIcon.className = 'removeIcon';
-    removeIcon.addEventListener('click', function () {
+    removeIcon.addEventListener('click', function (event) {
         remove(this);
+        //阻止冒泡
+        event.stopPropagation();
     });
     mainBodyItem.appendChild(removeIcon);
 }
@@ -104,14 +113,15 @@ function remove(ele) {
     var messageFromUser = confirm('确定要做删除操作吗?数据将被清空!');
     if (messageFromUser != null && messageFromUser != '') {
         var parentEle = ele.parentNode;
-        var name = parentEle.getAttribute('name');
         if (parentEle.id == 'openMark0') {
+            var name = parentEle.getAttribute('folderName');
             xhrFunc('/api/remove-folder?folderName=' + encodeURIComponent(name));
-            cleanUpList(0);
-            cleanUpList(1);
+            cleanUpList(FLAG_FOLDER);
+            cleanUpList(FLAG_TASK);
         } else if (parentEle.id == 'openMark1') {
+            var name = parentEle.getAttribute('taskName');
             var openFolder = document.getElementById('openMark0');
-            var folderName = openFolder.getAttribute('name');
+            var folderName = openFolder.getAttribute('folderName');
             xhrFunc('/api/remove-task?folderName=' + encodeURIComponent(folderName) + '&taskName=' + encodeURIComponent(name));
             var mainBody = document.getElementsByClassName('mainBody')[1];
             mainBody.removeChild(parentEle);
@@ -121,17 +131,17 @@ function remove(ele) {
 
 //在显示当前打开的文件夹中的文件前，清除掉上一次打开文件夹中显示出的文件列表
 function cleanUpList(flag) {
-    if (flag == 0) {
+    if (flag == FLAG_FOLDER) {
         var mainBody = document.getElementsByClassName('mainBody')[0];
         var openFolder = document.getElementById('openMark0');
         mainBody.removeChild(openFolder);
-        } else if(flag == 1) {
-            var mainBody = document.getElementsByClassName('mainBody')[1];
-            var mainBodyItems = document.getElementsByClassName('mainBodyItem1');
-            for (var i = 0; i < mainBodyItems.length; i++) {
-                mainBody.removeChild(mainBodyItems[i]);
-            }      
-        }
+    } else if(flag == FLAG_TASK) {
+        var mainBody = document.getElementsByClassName('mainBody')[1];
+        var mainBodyItems = document.getElementsByClassName('mainBodyItem1');
+        while (mainBodyItems.length) {
+            mainBody.removeChild(mainBodyItems[0]);
+        }      
+    }
 }
 
 
@@ -142,14 +152,14 @@ function openedMark(ele, flag) {
         mainBodyItems[i].id = '';
     }
     ele.id = 'openMark' + flag;
-    if (flag == 0) {
-        var folderName = ele.getAttribute('name');
-        cleanUpList(1);
-        xhrFunc('/api/load-taskLists-when-folderOpened?folderName=' + encodeURIComponent(folderName), 1);
-    } else if (flag == 1) {
+    if (flag == FLAG_FOLDER) {
+        var folderName = ele.getAttribute('folderName');
+        cleanUpList(FLAG_TASK);
+        xhrFunc('/api/load-taskLists-when-folderOpened?folderName=' + encodeURIComponent(folderName), FLAG_TASK);
+    } else if (flag == FLAG_TASK) {
         var folder = document.getElementById('openMark0');
-        var folderName = folder.getAttribute('name');
-        var taskName = ele.getAttribute('name');
+        var folderName = folder.getAttribute('folderName');
+        var taskName = ele.getAttribute('taskName');
         displayTaskName(taskName);
         xhrFunc('/api/read-data-when-taskOpened?folderName=' + encodeURIComponent(folderName) + '&taskName=' + encodeURIComponent(taskName), 2);
     }
@@ -183,8 +193,12 @@ function returnOpenFile() {
     var openFolder = document.getElementById('openMark0');
     var openTask = document.getElementById('openMark1');
     if (openFolder != null || openTask !== null) {
-        var folderName = openFolder.getAttribute('name');
-        var taskName = openTask.getAttribute('name');
+        var folderName = openFolder.getAttribute('folderName');
+        var taskName = openTask.getAttribute('taskName');
     }
     return [folderName, taskName];
 }
+
+
+
+

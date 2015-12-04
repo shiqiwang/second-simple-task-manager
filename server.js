@@ -14,7 +14,7 @@ function createFolder(folderName) {
     FS.mkdirSync(getFolderPath(folderName));
 }
 function createTaskDoc(folderName, taskName) {
-    FS.writeFileSync(getTaskPath(folderName, taskName));
+    FS.writeFileSync(getTaskPath(folderName, taskName), '');
 }
 //获取列表、数据
 function listFolders() {
