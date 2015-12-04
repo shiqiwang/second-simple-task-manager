@@ -34,7 +34,7 @@ function xhrFunc(url, flag) {
                         break;
                     case 2:
                         var editBox = document.getElementById('editBox');
-                        editBox.innerHTML = response || '';
+                        editBox.value = response || '';
                 };
             }
         }
@@ -69,9 +69,6 @@ function init() {
         }
     });
 
-    //editBox可编辑
-    var edit = document.getElementById('edit');
-    edit.addEventListener('click', editData);
     //保存editBox数据
     var save = document.getElementById('save');
     save.addEventListener('click', saveData);
@@ -166,7 +163,7 @@ function openedMark(ele, flag) {
 }
 function saveData() {
     var editBox = document.getElementById('editBox');
-    var data = editBox.innerHTML;
+    var data = editBox.value;
     var folderName = returnOpenFile()[0];
     var taskName = returnOpenFile()[1];
     if (folderName == null || taskName == null) {
@@ -174,10 +171,6 @@ function saveData() {
     } else {
         xhrFunc('/api/writeData-when-saveButtonClicked?folderName=' + encodeURIComponent(folderName) + '&taskName=' + encodeURIComponent(taskName) + '&data=' + encodeURIComponent(data));
     }
-}
-function editData() {
-    var editBox = document.getElementById('editBox');
-    editBox.contentEditable = 'true';
 }
 
 function displayTaskName(taskName) {
